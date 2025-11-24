@@ -12,10 +12,10 @@ Activate it with:
 ```
 To install the libraries, you can run:
 ```
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
 To exit:
 ```
-pip install -r requirements.txt
+deactivate
 ```
