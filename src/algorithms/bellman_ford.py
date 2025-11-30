@@ -1,8 +1,8 @@
 import sys
 from time import time
-from graph_generator import createGraph 
+from .graph_generator import createGraph 
 
-def bellmanFord(V, edges, src):
+def bellman_ford_opt(V, edges, src):
     inf = float('inf')
 
     # Normalize edge types to python ints and compute the true maximum node index.
@@ -42,6 +42,29 @@ def bellmanFord(V, edges, src):
 
     return dist
 
+def bellman_ford(V, edges, src):
+    
+    # Initially distance from source to all other vertices 
+    # is not known(Infinite) e.g. 1e8.
+    dist = [100000000] * V
+    dist[src] = 0
+
+    # Relaxation of all the edges V times, not (V - 1) as we
+    # need one additional relaxation to detect negative cycle
+    for i in range(V):
+        for edge in edges:
+            u, v, wt = edge
+            if dist[u] != 100000000 and dist[u] + wt < dist[v]:
+                
+                # If this is the Vth relaxation, then there 
+                # is a negative cycle
+                if i == V - 1:
+                    return [-1]
+                
+                # Update shortest distance to node v
+                dist[v] = dist[u] + wt
+    return dist
+
 if __name__ == '__main__':
     src = 0
     
@@ -54,13 +77,11 @@ if __name__ == '__main__':
     except ValueError:
         v = 2000
 
-    print(f"Generating raw graph for {v} nodes...")
     raw_edges = createGraph(v)
 
     # 2. CRITICAL FIX: MAKE IT UNDIRECTED
     # We must double the edges (u->v AND v->u) to match Dijkstra's environment
     # and ensure we can actually leave node 0. Normalize to ints while doing so.
-    print("Converting to Undirected graph...")
     undirected_edges = []
     for item in raw_edges:
         u, w_v, w = item
@@ -70,13 +91,27 @@ if __name__ == '__main__':
     
     print(f"Total Edges to process: {len(undirected_edges)}")
 
-    print(f"Running Bellman-Ford...")
+    print(f"Running Base Bellman-Ford...")
     start = time()  
-    ans = bellmanFord(v, undirected_edges, src)
+    ans = bellman_ford(v, undirected_edges, src)
     end = time()
 
     print("-" * 30)
     print(f"Algorithm Finished.")
     print(f"Time Taken: {end-start:.4f} seconds")
+    print(f"Sample output: {ans[:30]}")
     print("-" * 30)
-    print(f"Sample output: {ans[:5]}")
+
+    # Base bellman-ford doesn't even run lol
+
+    print(f"Running Opt Bellman-Ford...")
+    start = time()  
+    ans = bellman_ford_opt(v, undirected_edges, src)
+    end = time()
+
+    print("-" * 30)
+    print(f"Algorithm Finished.")
+    print(f"Time Taken: {end-start:.4f} seconds")
+    print(f"Sample output: {ans[:30]}")
+    print("-" * 30)
+    
